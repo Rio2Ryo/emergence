@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Emergence | Artificial Life Lab</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+  <!-- Boot Sequence Overlay -->
+  <div id="boot-overlay" class="boot-overlay">
+    <div class="boot-terminal">
+      <div class="boot-line" data-delay="0">$ INITIALIZING EMERGENCE v1.0...</div>
+      <div class="boot-line" data-delay="400">$ LOADING SIMULATION MODULES...</div>
+      <div class="boot-line" data-delay="800">$ PARTICLE_LIFE ............ OK</div>
+      <div class="boot-line" data-delay="1050">$ BOIDS .................... OK</div>
+      <div class="boot-line" data-delay="1300">$ GAME_OF_LIFE ............. OK</div>
+      <div class="boot-line" data-delay="1550">$ LANGTONS_ANT ............. OK</div>
+      <div class="boot-line" data-delay="1850">$ SYSTEM CHECK PASSED</div>
+      <div class="boot-line boot-ready" data-delay="2200">&gt; READY</div>
+    </div>
+  </div>
+
+  <!-- App Shell -->
+  <div id="app" class="app hidden">
+
+    <!-- Sidebar -->
+    <aside id="sidebar" class="sidebar">
+      <header class="sidebar-header">
+        <h1 class="app-title">EMERGENCE</h1>
+        <p class="app-subtitle">Artificial Life Laboratory</p>
+      </header>
+
+      <!-- Simulation Selector -->
+      <nav class="sim-selector">
+        <button class="sim-card active" data-sim="particle-life">
+          <span class="sim-icon">&#x269B;</span>
+          <span class="sim-label">Particle Life</span>
+        </button>
+        <button class="sim-card" data-sim="boids">
+          <span class="sim-icon">&#x1F426;</span>
+          <span class="sim-label">Boids</span>
+        </button>
+        <button class="sim-card" data-sim="game-of-life">
+          <span class="sim-icon">&#x25A6;</span>
+          <span class="sim-label">Game of Life</span>
+        </button>
+        <button class="sim-card" data-sim="langtons-ant">
+          <span class="sim-icon">&#x1F41C;</span>
+          <span class="sim-label">Langton's Ant</span>
+        </button>
+      </nav>
+
+      <!-- Parameters -->
+      <div class="params-section">
+        <h2 class="section-title">Parameters</h2>
+        <div id="params-container" class="params-container"></div>
+      </div>
+
+      <!-- Controls -->
+      <div class="controls-section">
+        <button id="btn-reset" class="btn btn-reset">Reset Simulation</button>
+        <button id="btn-pause" class="btn btn-pause">Pause</button>
+      </div>
+
+      <!-- Stats -->
+      <footer class="sidebar-footer">
+        <div class="stat">
+          <span class="stat-label">FPS</span>
+          <span id="fps-display" class="stat-value mono">0</span>
+        </div>
+        <div class="stat">
+          <span class="stat-label">STEPS</span>
+          <span id="step-display" class="stat-value mono">0</span>
+        </div>
+      </footer>
+
+      <!-- Keyboard Hints -->
+      <div class="kbd-hints">
+        <span><kbd>1</kbd>-<kbd>4</kbd> switch</span>
+        <span><kbd>Space</kbd> pause</span>
+        <span><kbd>R</kbd> reset</span>
+      </div>
+    </aside>
+
+    <!-- Main Canvas Area -->
+    <main id="canvas-area" class="canvas-area">
+      <canvas id="sim-canvas"></canvas>
+    </main>
+
+  </div>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>
