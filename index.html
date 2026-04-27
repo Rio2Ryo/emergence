@@ -2,8 +2,30 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <meta name="theme-color" content="#00f5d4">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Emergence">
   <title>Emergence | Artificial Life Lab</title>
+
+  <!-- OG -->
+  <meta property="og:title" content="Emergence | Artificial Life Laboratory">
+  <meta property="og:description" content="Interactive browser-based simulations: Particle Life, Boids, Game of Life, Langton's Ant, and Reaction-Diffusion. Built with vanilla JS and Canvas API.">
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://emergence-mu.vercel.app">
+
+  <!-- Twitter -->
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Emergence | Artificial Life Laboratory">
+  <meta name="twitter:description" content="5 mesmerizing artificial life simulations in your browser. No frameworks, no dependencies.">
+
+  <!-- General -->
+  <meta name="description" content="Interactive artificial life simulations: Particle Life, Boids, Game of Life, Langton's Ant, Reaction-Diffusion.">
+
+  <link rel="manifest" href="manifest.json">
+  <link rel="icon" href="favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="favicon.svg">
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -25,6 +47,11 @@
 
   <!-- App Shell -->
   <div id="app" class="app hidden">
+
+    <!-- Mobile Hamburger Toggle -->
+    <button id="btn-hamburger" class="btn-hamburger" aria-label="Toggle sidebar">
+      <span></span><span></span><span></span>
+    </button>
 
     <!-- Sidebar -->
     <aside id="sidebar" class="sidebar">
@@ -57,10 +84,16 @@
         </button>
       </nav>
 
+      <!-- Info Button -->
+      <div class="info-btn-wrap">
+        <button id="btn-info" class="btn btn-info" title="Simulation info (I)">&#x2139;</button>
+      </div>
+
       <!-- Parameters -->
       <div class="params-section">
         <h2 class="section-title">Parameters</h2>
         <div id="params-container" class="params-container"></div>
+        <div id="patterns-container"></div>
       </div>
 
       <!-- Controls -->
@@ -91,16 +124,44 @@
         <span><kbd>R</kbd> reset</span>
         <span><kbd>M</kbd> mute</span>
         <span><kbd>F</kbd> fullscreen</span>
+        <span><kbd>I</kbd> info</span>
       </div>
     </aside>
 
     <!-- Main Canvas Area -->
     <main id="canvas-area" class="canvas-area">
       <canvas id="sim-canvas"></canvas>
+      <!-- Loading Spinner (shown during module import) -->
+      <div id="sim-loader" class="sim-loader hidden">
+        <div class="spinner"></div>
+      </div>
     </main>
 
   </div>
 
+  <!-- Info Modal -->
+  <div id="info-modal" class="info-modal-overlay hidden">
+    <div class="info-modal">
+      <button id="info-modal-close" class="info-modal-close">&times;</button>
+      <h2 id="info-modal-title" class="info-modal-title"></h2>
+      <p id="info-modal-desc" class="info-modal-desc"></p>
+      <div class="info-modal-section">
+        <h3>Tips</h3>
+        <p id="info-modal-tips"></p>
+      </div>
+      <a id="info-modal-wiki" class="info-modal-wiki" href="#" target="_blank" rel="noopener noreferrer">Read more on Wikipedia &rarr;</a>
+    </div>
+  </div>
+
   <script type="module" src="js/app.js"></script>
+
+  <!-- Service Worker Registration -->
+  <script>
+    if ('serviceWorker' in navigator) {
+      window.addEventListener('load', () => {
+        navigator.serviceWorker.register('/sw.js').catch(() => {});
+      });
+    }
+  </script>
 </body>
 </html>

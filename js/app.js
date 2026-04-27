@@ -4,6 +4,42 @@
    ========================================================================== */
 
 // ---------------------------------------------------------------------------
+// Simulation info — descriptions, tips, and wiki links for the info modal
+// ---------------------------------------------------------------------------
+const SIM_INFO = {
+  'particle-life': {
+    title: 'Particle Life',
+    desc: 'Colored particles interact through attraction and repulsion forces, creating emergent clustering, orbiting, and symbiotic behaviors. Each species pair has a unique force rule, producing surprising complexity from simple physics.',
+    tips: 'Click the canvas to spawn a burst of new particles. Tweak attraction/repulsion values to discover entirely new emergent structures. Try setting friction low for chaotic motion.',
+    wiki: 'https://en.wikipedia.org/wiki/Artificial_life'
+  },
+  'boids': {
+    title: 'Boids',
+    desc: 'A classic flocking simulation based on Craig Reynolds\u2019 three rules: separation (avoid crowding), alignment (steer toward average heading), and cohesion (move toward center of mass). No leader, just local rules producing global order.',
+    tips: 'Click to place an attractor that draws the flock. Adjust the three force weights to see drastically different flock shapes \u2014 from tight schools to diffuse clouds.',
+    wiki: 'https://en.wikipedia.org/wiki/Boids'
+  },
+  'game-of-life': {
+    title: 'Conway\u2019s Game of Life',
+    desc: 'The most famous cellular automaton. Cells on a grid live or die by simple neighbor-count rules, yet produce gliders, oscillators, and even universal computation. A cornerstone of emergence research.',
+    tips: 'Click cells to toggle them alive or dead. Pause the simulation to draw patterns, then resume to watch them evolve. Try drawing a line of ~10 cells to see a glider gun emerge.',
+    wiki: 'https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life'
+  },
+  'langtons-ant': {
+    title: 'Langton\u2019s Ant',
+    desc: 'A two-state Turing machine on a grid: the ant turns right on white, left on black, flipping the cell color behind it. After ~10,000 chaotic steps, it spontaneously builds an infinite diagonal highway.',
+    tips: 'Watch for the \u201chighway\u201d phase \u2014 the ant suddenly starts building a repeating diagonal pattern. Click to place obstacles and see how the ant adapts its emergent path.',
+    wiki: 'https://en.wikipedia.org/wiki/Langton%27s_ant'
+  },
+  'reaction-diffusion': {
+    title: 'Reaction-Diffusion',
+    desc: 'A Gray-Scott model where two chemicals (activator and inhibitor) diffuse and react, forming Turing patterns: spots, stripes, waves, and coral-like structures found throughout nature.',
+    tips: 'Click to seed new chemical concentrations. Adjust feed and kill rates to transition between spots, stripes, and maze-like patterns. Small parameter changes yield dramatic visual shifts.',
+    wiki: 'https://en.wikipedia.org/wiki/Reaction%E2%80%93diffusion_system'
+  }
+};
+
+// ---------------------------------------------------------------------------
 // Module map — maps data-sim attribute values to ES module paths
 // ---------------------------------------------------------------------------
 const SIM_MODULES = {
@@ -21,7 +57,8 @@ const bootOverlay    = document.getElementById('boot-overlay');
 const app            = document.getElementById('app');
 const canvas         = document.getElementById('sim-canvas');
 const ctx            = canvas.getContext('2d');
-const paramsContainer = document.getElementById('params-container');
+const paramsContainer    = document.getElementById('params-container');
+const patternsContainer  = document.getElementById('patterns-container');
 const fpsDisplay     = document.getElementById('fps-display');
 const stepDisplay    = document.getElementById('step-display');
 const btnReset       = document.getElementById('btn-reset');
@@ -30,6 +67,14 @@ const simCards       = document.querySelectorAll('.sim-card');
 const btnFullscreen  = document.getElementById('btn-fullscreen');
 const btnScreenshot  = document.getElementById('btn-screenshot');
 const sidebar        = document.getElementById('sidebar');
+const simLoader      = document.getElementById('sim-loader');
+const infoModal      = document.getElementById('info-modal');
+const infoModalClose = document.getElementById('info-modal-close');
+const infoTitle      = document.getElementById('info-modal-title');
+const infoDesc       = document.getElementById('info-modal-desc');
+const infoTips       = document.getElementById('info-modal-tips');
+const infoWiki       = document.getElementById('info-modal-wiki');
+const btnInfo        = document.getElementById('btn-info');
 
 // ---------------------------------------------------------------------------
 // State
@@ -240,9 +285,15 @@ async function loadSimulation(key) {
   stepCount = 0;
   stepDisplay.textContent = '0';
 
+  // Show loading spinner
+  if (simLoader) simLoader.classList.remove('hidden');
+
   // Dynamic import
   const module = await import(SIM_MODULES[key]);
   const SimClass = module.default;
+
+  // Hide loading spinner
+  if (simLoader) simLoader.classList.add('hidden');
 
   // Instantiate
   const rect = canvas.parentElement.getBoundingClientRect();
@@ -297,6 +348,87 @@ function buildParamsUI() {
         break;
     }
   });
+
+  // Build pattern presets panel if the simulation supports it
+  buildPatternsUI();
+}
+
+// ---------------------------------------------------------------------------
+// Pattern Presets Panel
+// ---------------------------------------------------------------------------
+function buildPatternsUI() {
+  patternsContainer.innerHTML = '';
+
+  if (!activeSim || typeof activeSim.getPatternNames !== 'function') return;
+
+  const patterns = typeof activeSim.getPatterns === 'function'
+    ? activeSim.getPatterns()
+    : activeSim.getPatternNames().map(k => ({ key: k, label: k }));
+
+  if (patterns.length === 0) return;
+
+  const panel = document.createElement('div');
+  panel.className = 'patterns-panel';
+
+  const title = document.createElement('h2');
+  title.className = 'section-title';
+  title.textContent = 'Pattern Stamps';
+  panel.appendChild(title);
+
+  const row = document.createElement('div');
+  row.className = 'patterns-row';
+
+  // Pattern stamp buttons
+  patterns.forEach(p => {
+    const btn = document.createElement('button');
+    btn.className = 'pattern-btn';
+    btn.textContent = p.label;
+    btn.addEventListener('click', () => {
+      if (!activeSim) return;
+      const cols = activeSim.cols || 0;
+      const rows = activeSim.rows || 0;
+      activeSim.stampPattern(p.key, Math.floor(cols / 2), Math.floor(rows / 2));
+    });
+    row.appendChild(btn);
+  });
+
+  // Randomize button
+  if (typeof activeSim.randomize === 'function') {
+    const btn = document.createElement('button');
+    btn.className = 'pattern-btn pattern-btn--action';
+    btn.textContent = 'Randomize';
+    btn.addEventListener('click', () => {
+      if (activeSim && typeof activeSim.randomize === 'function') {
+        activeSim.randomize();
+      }
+    });
+    row.appendChild(btn);
+  }
+
+  // Clear button
+  if (typeof activeSim.reset === 'function') {
+    const btn = document.createElement('button');
+    btn.className = 'pattern-btn pattern-btn--action';
+    btn.textContent = 'Clear';
+    btn.addEventListener('click', () => {
+      if (!activeSim) return;
+      activeSim.reset();
+      // Set all cells to dead
+      if (activeSim.grid) {
+        activeSim.grid.fill(0);
+      }
+      if (activeSim.age) {
+        activeSim.age.fill(0);
+      }
+      if (activeSim.ghost) {
+        activeSim.ghost.fill(0);
+      }
+    });
+    row.appendChild(btn);
+  }
+
+  panel.appendChild(row);
+  patternsContainer.appendChild(panel);
 }
 
 function createRangeControl(p) {
@@ -576,8 +708,36 @@ function exportScreenshot() {
 }
 
 // ---------------------------------------------------------------------------
+// Info Modal
+// ---------------------------------------------------------------------------
+function openInfoModal() {
+  const info = SIM_INFO[activeSimKey];
+  if (!info || !infoModal) return;
+  infoTitle.textContent = info.title;
+  infoDesc.textContent = info.desc;
+  infoTips.textContent = info.tips;
+  infoWiki.href = info.wiki;
+  infoModal.classList.remove('hidden');
+}
+
+function closeInfoModal() {
+  if (infoModal) infoModal.classList.add('hidden');
+}
+
+// ---------------------------------------------------------------------------
 // Event Handlers
 // ---------------------------------------------------------------------------
+
+// Info button
+if (btnInfo) btnInfo.addEventListener('click', () => openInfoModal());
+
+// Info modal close button
+if (infoModalClose) infoModalClose.addEventListener('click', () => closeInfoModal());
+
+// Close info modal on overlay click
+if (infoModal) infoModal.addEventListener('click', (e) => {
+  if (e.target === infoModal) closeInfoModal();
+});
 
 // Simulation card clicks
 simCards.forEach(card => {
@@ -666,8 +826,20 @@ document.addEventListener('keydown', (e) => {
         toggleFullscreen();
       }
       break;
+    case 'i':
+    case 'I':
+      if (!e.ctrlKey && !e.metaKey) {
+        if (infoModal && !infoModal.classList.contains('hidden')) {
+          closeInfoModal();
+        } else {
+          openInfoModal();
+        }
+      }
+      break;
     case 'Escape':
-      if (isFullscreen) {
+      if (infoModal && !infoModal.classList.contains('hidden')) {
+        closeInfoModal();
+      } else if (isFullscreen) {
         toggleFullscreen();
       }
       break;
@@ -692,6 +864,36 @@ canvas.addEventListener('contextmenu', (e) => {
   const y = e.clientY - rect.top;
   activeSim.handleClick(x, y, e);
 });
+
+// Touch support — convert touch coordinates and forward to simulation
+function handleTouchOnCanvas(e) {
+  if (!activeSim) return;
+  e.preventDefault();
+  const rect = canvas.getBoundingClientRect();
+  for (const touch of e.changedTouches) {
+    const x = touch.clientX - rect.left;
+    const y = touch.clientY - rect.top;
+    activeSim.handleClick(x, y, e);
+  }
+}
+canvas.addEventListener('touchstart', handleTouchOnCanvas, { passive: false });
+canvas.addEventListener('touchmove', handleTouchOnCanvas, { passive: false });
+
+// Mobile sidebar hamburger toggle
+const btnHamburger = document.getElementById('btn-hamburger');
+if (btnHamburger) {
+  btnHamburger.addEventListener('click', () => {
+    sidebar.classList.toggle('sidebar-open');
+    btnHamburger.classList.toggle('open');
+  });
+  // Close sidebar when a sim card is tapped on mobile
+  simCards.forEach(card => {
+    card.addEventListener('click', () => {
+      sidebar.classList.remove('sidebar-open');
+      btnHamburger.classList.remove('open');
+    });
+  });
+}
 
 // ---------------------------------------------------------------------------
 // Initialization
