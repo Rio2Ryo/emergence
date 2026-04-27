@@ -75,6 +75,8 @@ const infoDesc       = document.getElementById('info-modal-desc');
 const infoTips       = document.getElementById('info-modal-tips');
 const infoWiki       = document.getElementById('info-modal-wiki');
 const btnInfo        = document.getElementById('btn-info');
+const statsOverlay   = document.getElementById('stats-overlay');
+const btnStats       = document.getElementById('btn-stats');
 
 // ---------------------------------------------------------------------------
 // State
@@ -88,6 +90,9 @@ let lastFrameTime   = 0;
 let fpsFrames       = 0;
 let fpsAccum        = 0;
 let fpsValue        = 0;
+let simStartTime    = 0;      // timestamp when current sim was loaded
+let statsVisible    = false;
+let statsInterval   = null;
 
 // ---------------------------------------------------------------------------
 // Ambient Audio System
@@ -284,6 +289,7 @@ async function loadSimulation(key) {
   activeSimKey = key;
   stepCount = 0;
   stepDisplay.textContent = '0';
+  simStartTime = performance.now();
 
   // Show loading spinner
   if (simLoader) simLoader.classList.remove('hidden');
@@ -564,6 +570,41 @@ function formatNumber(val, step) {
 }
 
 // ---------------------------------------------------------------------------
+// Stats Overlay
+// ---------------------------------------------------------------------------
+function toggleStats() {
+  statsVisible = !statsVisible;
+  if (statsOverlay) statsOverlay.classList.toggle('hidden', !statsVisible);
+  if (btnStats) btnStats.classList.toggle('active', statsVisible);
+
+  if (statsVisible) {
+    updateStatsOverlay();
+    statsInterval = setInterval(updateStatsOverlay, 500);
+  } else {
+    clearInterval(statsInterval);
+    statsInterval = null;
+  }
+}
+
+function updateStatsOverlay() {
+  if (!statsOverlay || !statsVisible) return;
+
+  const simName = SIM_INFO[activeSimKey]?.title || activeSimKey || 'None';
+  const rect = canvas.parentElement.getBoundingClientRect();
+  const elapsed = simStartTime ? Math.floor((performance.now() - simStartTime) / 1000) : 0;
+  const mins = Math.floor(elapsed / 60);
+  const secs = elapsed % 60;
+  const timeStr = mins > 0 ? `${mins}m ${secs}s` : `${secs}s`;
+
+  statsOverlay.innerHTML =
+    `<div class="stats-line"><span class="stats-label">SIM</span><span class="stats-val">${simName}</span></div>` +
+    `<div class="stats-line"><span class="stats-label">FPS</span><span class="stats-val">${fpsValue}</span></div>` +
+    `<div class="stats-line"><span class="stats-label">STEPS</span><span class="stats-val">${formatStepCount(stepCount)}</span></div>` +
+    `<div class="stats-line"><span class="stats-label">CANVAS</span><span class="stats-val">${Math.round(rect.width)}\u00d7${Math.round(rect.height)}</span></div>` +
+    `<div class="stats-line"><span class="stats-label">ELAPSED</span><span class="stats-val">${timeStr}</span></div>`;
+}
+
+// ---------------------------------------------------------------------------
 // Animation Loop
 // ---------------------------------------------------------------------------
 function loop(timestamp) {
@@ -725,6 +766,49 @@ function closeInfoModal() {
 }
 
 // ---------------------------------------------------------------------------
+// Theme Switcher
+// ---------------------------------------------------------------------------
+const THEMES = ['cyberpunk', 'ember', 'matrix'];
+const themeDots = document.querySelectorAll('.theme-dot');
+
+/** Apply a theme by name and persist to localStorage. */
+function setTheme(name) {
+  if (!THEMES.includes(name)) return;
+  // 'cyberpunk' is the default — remove data-theme attribute for it
+  if (name === 'cyberpunk') {
+    delete document.documentElement.dataset.theme;
+  } else {
+    document.documentElement.dataset.theme = name;
+  }
+  // Update dot active states
+  themeDots.forEach(dot => {
+    dot.classList.toggle('active', dot.dataset.theme === name);
+  });
+  localStorage.setItem('emergence-theme', name);
+}
+
+/** Cycle to the next theme in the list. */
+function cycleTheme() {
+  const current = localStorage.getItem('emergence-theme') || 'cyberpunk';
+  const idx = THEMES.indexOf(current);
+  const next = THEMES[(idx + 1) % THEMES.length];
+  setTheme(next);
+}
+
+/** Load saved theme from localStorage (called during init). */
+function loadSavedTheme() {
+  const saved = localStorage.getItem('emergence-theme');
+  if (saved && THEMES.includes(saved)) {
+    setTheme(saved);
+  }
+}
+
+// Theme dot click handlers
+themeDots.forEach(dot => {
+  dot.addEventListener('click', () => setTheme(dot.dataset.theme));
+});
+
+// ---------------------------------------------------------------------------
 // Event Handlers
 // ---------------------------------------------------------------------------
 
@@ -782,6 +866,9 @@ btnScreenshot.addEventListener('click', () => {
   exportScreenshot();
 });
 
+// Stats button
+if (btnStats) btnStats.addEventListener('click', () => toggleStats());
+
 // Keyboard shortcuts
 document.addEventListener('keydown', (e) => {
   // Ignore if user is typing in an input
@@ -834,6 +921,18 @@ document.addEventListener('keydown', (e) => {
         } else {
           openInfoModal();
         }
+      }
+      break;
+    case 's':
+    case 'S':
+      if (!e.ctrlKey && !e.metaKey) {
+        toggleStats();
+      }
+      break;
+    case 't':
+    case 'T':
+      if (!e.ctrlKey && !e.metaKey) {
+        cycleTheme();
       }
       break;
     case 'Escape':
@@ -899,6 +998,9 @@ if (btnHamburger) {
 // Initialization
 // ---------------------------------------------------------------------------
 function init() {
+  // Restore saved theme
+  loadSavedTheme();
+
   // Boot sequence
   runBootSequence();
 

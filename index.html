@@ -103,6 +103,7 @@
         <button id="btn-mute" class="btn btn-mute" title="Toggle ambient audio">&#x1F507;</button>
         <button id="btn-fullscreen" class="btn btn-icon" title="Fullscreen (F)">&#x26F6;</button>
         <button id="btn-screenshot" class="btn btn-icon" title="Screenshot">&#x1F4F7;</button>
+        <button id="btn-stats" class="btn btn-icon" title="Stats overlay (S)">&#x1F4CA;</button>
       </div>
 
       <!-- Stats -->
@@ -117,6 +118,14 @@
         </div>
       </footer>
 
+      <!-- Theme Switcher -->
+      <div class="theme-switcher">
+        <span class="theme-switcher-label">Theme</span>
+        <button class="theme-dot active" data-theme="cyberpunk" title="Cyberpunk"></button>
+        <button class="theme-dot" data-theme="ember" title="Ember"></button>
+        <button class="theme-dot" data-theme="matrix" title="Matrix"></button>
+      </div>
+
       <!-- Keyboard Hints -->
       <div class="kbd-hints">
         <span><kbd>1</kbd>-<kbd>5</kbd> switch</span>
@@ -125,12 +134,16 @@
         <span><kbd>M</kbd> mute</span>
         <span><kbd>F</kbd> fullscreen</span>
         <span><kbd>I</kbd> info</span>
+        <span><kbd>S</kbd> stats</span>
+        <span><kbd>T</kbd> theme</span>
       </div>
     </aside>
 
     <!-- Main Canvas Area -->
     <main id="canvas-area" class="canvas-area">
       <canvas id="sim-canvas"></canvas>
+      <!-- Stats Overlay -->
+      <div id="stats-overlay" class="stats-overlay hidden"></div>
       <!-- Loading Spinner (shown during module import) -->
       <div id="sim-loader" class="sim-loader hidden">
         <div class="spinner"></div>
