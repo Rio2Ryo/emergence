@@ -17,8 +17,9 @@
       <div class="boot-line" data-delay="1050">$ BOIDS .................... OK</div>
       <div class="boot-line" data-delay="1300">$ GAME_OF_LIFE ............. OK</div>
       <div class="boot-line" data-delay="1550">$ LANGTONS_ANT ............. OK</div>
-      <div class="boot-line" data-delay="1850">$ SYSTEM CHECK PASSED</div>
-      <div class="boot-line boot-ready" data-delay="2200">&gt; READY</div>
+      <div class="boot-line" data-delay="1700">$ REACTION_DIFFUSION ....... OK</div>
+      <div class="boot-line" data-delay="1950">$ SYSTEM CHECK PASSED</div>
+      <div class="boot-line boot-ready" data-delay="2300">&gt; READY</div>
     </div>
   </div>
 
@@ -50,6 +51,10 @@
           <span class="sim-icon">&#x1F41C;</span>
           <span class="sim-label">Langton's Ant</span>
         </button>
+        <button class="sim-card" data-sim="reaction-diffusion">
+          <span class="sim-icon">&#x1F9EA;</span>
+          <span class="sim-label">Reaction-Diffusion</span>
+        </button>
       </nav>
 
       <!-- Parameters -->
@@ -62,6 +67,9 @@
       <div class="controls-section">
         <button id="btn-reset" class="btn btn-reset">Reset Simulation</button>
         <button id="btn-pause" class="btn btn-pause">Pause</button>
+        <button id="btn-mute" class="btn btn-mute" title="Toggle ambient audio">&#x1F507;</button>
+        <button id="btn-fullscreen" class="btn btn-icon" title="Fullscreen (F)">&#x26F6;</button>
+        <button id="btn-screenshot" class="btn btn-icon" title="Screenshot">&#x1F4F7;</button>
       </div>
 
       <!-- Stats -->
@@ -78,9 +86,11 @@
 
       <!-- Keyboard Hints -->
       <div class="kbd-hints">
-        <span><kbd>1</kbd>-<kbd>4</kbd> switch</span>
+        <span><kbd>1</kbd>-<kbd>5</kbd> switch</span>
         <span><kbd>Space</kbd> pause</span>
         <span><kbd>R</kbd> reset</span>
+        <span><kbd>M</kbd> mute</span>
+        <span><kbd>F</kbd> fullscreen</span>
       </div>
     </aside>
 

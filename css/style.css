@@ -500,6 +500,67 @@ input[type="color"]::-webkit-color-swatch {
   color: var(--secondary);
 }
 
+/* --- Mute Button --- */
+.btn-mute {
+  flex: 0 0 40px;
+  padding: 10px 0;
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.btn-mute:hover {
+  border-color: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.1);
+}
+
+.btn-mute.unmuted {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.15), inset 0 0 12px rgba(0, 245, 212, 0.05);
+}
+
+/* --- Icon Buttons (Fullscreen, Screenshot) --- */
+.btn-icon {
+  flex: 0 0 40px;
+  padding: 10px 0;
+  font-size: 16px;
+  line-height: 1;
+  text-align: center;
+  transition: all var(--transition);
+}
+
+.btn-icon:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.1);
+}
+
+.btn-icon.active {
+  background: var(--accent-dim);
+  border-color: var(--accent);
+  color: var(--accent);
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.15), inset 0 0 12px rgba(0, 245, 212, 0.05);
+}
+
+/* ---------- Fullscreen Mode ---------- */
+.sidebar {
+  transition: margin-left 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+              opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.app.fullscreen .sidebar {
+  margin-left: calc(-1 * var(--sidebar-w));
+  opacity: 0;
+  pointer-events: none;
+}
+
+.app.fullscreen .canvas-area {
+  flex: 1;
+}
+
 /* ---------- Sidebar Footer (Stats) ---------- */
 .sidebar-footer {
   display: flex;
@@ -660,5 +721,16 @@ kbd {
 
   .kbd-hints {
     display: none;
+  }
+
+  .app.fullscreen .sidebar {
+    margin-left: 0;
+    margin-bottom: -45vh;
+    opacity: 0;
+    pointer-events: none;
+  }
+
+  .app.fullscreen .canvas-area {
+    height: 100vh;
   }
 }
